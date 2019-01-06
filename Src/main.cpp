@@ -3,9 +3,11 @@
 #include <limits> 
 
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/move/unique_ptr.hpp>
 
 using namespace std;
 namespace bpt = boost::posix_time;
+namespace bml = boost::movelib;
 
 const size_t LOOP_NUM = 100000000;
 
@@ -93,6 +95,7 @@ public:
     virtual ~ArrayAccess()
     {
         destroy();
+        cout << "Destructor Get called." << endl;
     }
 
     virtual void prepare(void)
@@ -169,30 +172,30 @@ int main(void)
 
     show_types();
 
-    Runnable* rnbFloat     = new FloatingPointMuliplification<float>;
-    Runnable* rnbDouble    = new FloatingPointMuliplification<double>;
-    Runnable* rnbExpFloat  = new CMathExponential<float>;
-    Runnable* rnbExpDouble = new CMathExponential<double>;
-    Runnable* rnbAAFloat   = new ArrayAccess<float>(1000000);
-    Runnable* rnbAADouble  = new ArrayAccess<double>(1000000);
+    bml::unique_ptr<Runnable> rnbFloat(     new FloatingPointMuliplification<float> );
+    bml::unique_ptr<Runnable> rnbDouble(    new FloatingPointMuliplification<double> );
+    bml::unique_ptr<Runnable> rnbExpFloat(  new CMathExponential<float> );
+    bml::unique_ptr<Runnable> rnbExpDouble( new CMathExponential<double> );
+    bml::unique_ptr<Runnable> rnbAAFloat(   new ArrayAccess<float>(1000000) );
+    bml::unique_ptr<Runnable> rnbAADouble(  new ArrayAccess<double>(1000000) );
 
     RunnableOperator ro;
 
     cout << "Executing time of various operations." << endl;
 
-    ro.profile( rnbFloat,  LOOP_NUM );
-    ro.profile( rnbDouble, LOOP_NUM );
-    ro.profile( rnbExpFloat,  LOOP_NUM );
-    ro.profile( rnbExpDouble, LOOP_NUM );
-    ro.profile( rnbAAFloat, LOOP_NUM );
-    ro.profile( rnbAADouble, LOOP_NUM );
+    ro.profile( rnbFloat.get(),     LOOP_NUM );
+    ro.profile( rnbDouble.get(),    LOOP_NUM );
+    ro.profile( rnbExpFloat.get(),  LOOP_NUM );
+    ro.profile( rnbExpDouble.get(), LOOP_NUM );
+    ro.profile( rnbAAFloat.get(),   LOOP_NUM );
+    ro.profile( rnbAADouble.get(),  LOOP_NUM );
 
-    delete rnbAADouble; rnbAADouble = NULL;
-    delete rnbAAFloat; rnbAAFloat = NULL;
-    delete rnbExpDouble; rnbExpDouble = NULL;
-    delete rnbExpFloat; rnbExpFloat = NULL;
-    delete rnbDouble; rnbDouble = NULL;
-    delete rnbFloat; rnbFloat = NULL;
+    // delete rnbAADouble; rnbAADouble = NULL;
+    // delete rnbAAFloat; rnbAAFloat = NULL;
+    // delete rnbExpDouble; rnbExpDouble = NULL;
+    // delete rnbExpFloat; rnbExpFloat = NULL;
+    // delete rnbDouble; rnbDouble = NULL;
+    // delete rnbFloat; rnbFloat = NULL;
 
     return 0;
 }
